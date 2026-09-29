@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro & Modern HTML5 Arcade Dashboard</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --card-hover: #334155;
+            --accent-color: #38bdf8;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-bottom: 1px solid var(--border-color);
+            padding: 2.5rem 1rem;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(90deg, #38bdf8, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+            flex: 1;
+            width: 100%;
+        }
+
+        .search-bar {
+            position: sticky;
+            top: 1rem;
+            z-index: 100;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .search-bar input {
+            width: 100%;
+            max-width: 600px;
+            padding: 0.85rem 1.5rem;
+            font-size: 1rem;
+            border-radius: 50px;
+            border: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            color: var(--text-main);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-bar input:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .game-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.25rem;
+            text-decoration: none;
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .game-card:hover {
+            transform: translateY(-4px);
+            background-color: var(--card-hover);
+            border-color: var(--accent-color);
+            box-shadow: 0 10px 15px -3px rgba(56, 189, 248, 0.1);
+        }
+
+        .game-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            word-break: break-word;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .game-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .play-btn {
+            background-color: var(--accent-color);
+            color: #0f172a;
+            padding: 0.35rem 0.85rem;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: opacity 0.2s;
+        }
+
+        .game-card:hover .play-btn {
+            opacity: 0.9;
+        }
+
+        .no-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 4rem;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            display: none;
+        }
+
+        footer.site-footer {
+            text-align: center;
+            padding: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            background-color: #0f172a;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🎮 HTML5 Game Arcade</h1>
+        <p>Explore and play all your custom web games instantly.</p>
+    </header>
+
+    <div class="container">
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search through games..." autofocus>
+        </div>
+
+        <div class="games-grid" id="gamesGrid">
+            <!-- Game cards injected automatically via JavaScript -->
+        </div>
+
+        <div class="no-results" id="noResults">
+            No games found matching your search.
+        </div>
+    </div>
+
+    <footer class="site-footer">
+        &copy; Arcade Dashboard • Built for all game folders
+    </footer>
+
+    <script>
+        // List of all generated folder names extracted from your directory listing
+        const gameFolders = [
+            "2048", "2048_win", "2D_Breakout", "2D_Fighting_game", "3D_Car_Racing_Game", "3d_Box_Game", "3d_Snake", 
+            "8_Puzzle", "AI_CHESS_Game", "Achluophobia", "Adventure_Game", "Aero_Acrobat", "Aim_Training", "AirBalloon", 
+            "Airhocky_game", "Alien_Invasion", "Alien_Language_Translator", "Alien_Shooters", "Align_4_Game", 
+            "Alphabet-and-Vowels", "Alphabet", "Alphabet_Learning_Game", "Am_I_the_number", "Among_Us_Game", 
+            "Anagram -Word-Game", "Anagram_Checker_Game", "Angry_Bird", "Angry_Boars", "Animal_Match_Game", 
+            "Animal_Name_Guessing", "Anime_Clicker", "Ant_Smasher", "AquaSort_Game", "Arcade_Game", "Archery", 
+            "Arkanoid_Game", "ArmorAlley", "Asteroids_3D", "Astronaunt_runner", "Atari_breakout", "Atlas_Game", 
+            "Audio_Wordle", "Avax_Gods", "Avoider_Game", "Back_To_Space", "Bad_Depot", "Bad_Luck_Brian", 
+            "Ball-And-Paddle-Game", "Ball_Fall_Game", "Ball_Shooting_Game", "Ball_and_glass", "Ball_in_Maze", 
+            "Ballarena", "Balloon_Buster", "Balloon_Defense_Game", "Balloon_Popup", "Baseball", "Baseketball", 
+            "Bash_mole", "Battleship", "Bear_Hunter_Ninja", "Beat_a_mole", "Belt_Black", "Beyblade", "Beyonder", 
+            "Bingo_Game", "Bird_game", "Bit_Maze_Platformer_Maze", "Black_Jack", "Black_jackk", "Blanks_Detective", 
+            "Blast Zone", "Blink_Beat", "Block Game", "Block.io", "Block_Building", "Block_Buster", "Block_Dodger", 
+            "Block_Ninja", "Block_Vault", "Bomb Throw Game", "Boom_Blast", "Bottle_Flip", "Bounce_Ball", 
+            "Bouncing_Ball_Game", "Bow_And_Arrow", "Bow_Arrow", "Box_In_Air_Game", "Box_Merge", "Brain_Burst_Game", 
+            "Brain_Color_Mastermind", "Brain_Game", "Brain_card_game", "Breakout", "Brick Buster", "Brick_Breaker", 
+            "Brick_and_Ball", "Bubble'z Popper", "Bubble_Blast_Game", "Bubble_Shooter", "Building Block Game", 
+            "Bulls_And_Cows_New", "Bulls_and_Cows", "Bulls_eye", "BullseyeGame", "Bunny_is_Lost", "CHESS", 
+            "CSS_Crossword", "CSS_Select", "Cable_Maze", "Caesar_Cipher", "Call_Of_Duty", "Candy_Crush", 
+            "Candy_Crush_Saga", "Candy_Match_Saga", "Canon_Defense", "Car_Racing_Game", "CareTaker", "Carnival_game", 
+            "Carrom", "Cartoon_Character_Guessing_Game", "Cast_and_Catch", "Cat_Goric", "Catch Him", 
+            "Catch the falling Stars", "CatchTheBall", "Catch_Craze", "Catch_Stars", "Catch_The_Ball", 
+            "Catch_The_Circle", "Catch_The_Falling_Object", "Catch_The_Objects", "Catch_me_game", "Catch_the_Bunny", 
+            "Charon_Jr", "Checkers", "Chess.com", "Chess_Game", "Chess_Game_computer", "Chicken_cannon", "Chopsticks", 
+            "Chrome_Dino_Game", "Chrome_Dinosaur_Game", "Circuit_Craze", "Circus_Charly", "City_Builder_Game", 
+            "CodePen_Simulator", "Code_Cracker", "Color The Page", "Color-Blink-Challenge", "Color_Blast", 
+            "Color_Crush_Game", "Color_Shifter", "Color_Swap", "Color_Turner", "Color_switcher", "Coloron", 
+            "Colour_Generator_Game", "Colour_Guessing_Game", "Computer_Bingo", "Connect4", "Connect_Four", 
+            "Conqueror_Quest", "Cooking_Challenge_Game", "CopyCat", "Corona_Fighter", "Corona_Shooter", "Cosmic_Blast", 
+            "Cosmic_Coin_Collector", "Country_Guesser_Game", "CowBull", "Crack_The_Code", "Cross_Road_Game", 
+            "Cross_The_River_Game", "Cross_The_Road", "Crossword_Game", "Crossword_Puzzle", "Crossy_Road", 
+            "Crystals_Collecter", "Currency_Converter", "Cut_the_rope", "DNA_Sequencer", "Dante", "Dead_Again", 
+            "Death_by_Hamster", "Debris_Dodge", "Destroyer", "Detona", "Diamond_Run", "Dice_Game", "Dice_Roller", 
+            "Dice_Showdown_Game", "Dice_rolling_simulator", "Digit_Dilemma", "Dino_Runner_Game", "Dinoffline", 
+            "Dinosaur_Memory_Game", "Disney_Trivia", "Dodge the Blocks", "Dont_Die_To_Ghosts", "Doodle_Draw", 
+            "Doodle_Jump", "Doppelkopf", "DoraemonRun", "Doraemon_Jump", "Doremon_Puzzle", "Dot_Box_Game", "Dot_Connect", 
+            "Dot_Dash", "Dots_and_Boxes_Game", "Drag_And_Drop_Puzzle", "Dragon_Ball_Game", "Dragon_Slayer", 
+            "Dragon_Tower", "Dragon_World_Game", "Drawing_app", "Drop_Dash_Game", "Drum_Kit_Game", "Drum_kit", 
+            "Drummer_Kit", "Dsa_quiz_game", "DuckHunt", "Duck_Hunting_Game", "Dungeon_Crawler", "Earth_Destroyer", 
+            "Earth_Guardian", "Eco_Warrior", "Elemental Riddles", "Elemental_Flux", "Elephant_ant_man", "Emoji_Charades", 
+            "Emoji_Intruder", "Emoji_Puzzle_Game", "Emoji_slot_machine", "EndlessRunner", "Escape", "Escape_room", 
+            "Etch_a_Sketch", "Etch_a_Sketch_2", "Everyones_Sky", "Fall_Down", "Falling_Ball", "Falling_Blocks", 
+            "Falling_Words", "Fidget_Spinner_Game", "Fifteen_Puzzle_Game", "Fight_Game", "Find_Extra_Cube", 
+            "Find_The_Missing_Letter", "Find_the_Number", "Find_the_ball", "Firedog_Adventure", "Five_Nights_at_Freddys", 
+            "Flag_Guess_Game", "Flames Game", "Flappy_Bird", "Flappy_Birdd", "Flappy_Bubble_Sofa", "Flashlight_Pointer_Game", 
+            "Flip_Card_Game", "Flip_Coin", "Flying_Fish", "Foosball", "Forest_Guardian", "Four_In_Row", "Free_Bird", 
+            "Frogger", "FruitCatcher", "Fruit_Catching", "Fruit_Catching_Game", "Fruit_Ninja", "Fruit_Slicer_Game", 
+            "Fruity_Fortune", "Galaxy-Shoot/flutter-galaxy", "Galaxy_Rider", "Ganesh QR Maker", "Garden-Builder-game", 
+            "Gem_Cruncher", "Get_The_Pigeon", "Ghost_Surf", "Ghost_busting_game", "Gita_Shloka_Generator", "Glitch_Buster", 
+            "Gnomedom", "Go-fish-master", "GoFish", "Goal_Rush", "Gobblet", "Grab_The_Carrot", "Gravity_Dropss", 
+            "Gravity_Simulation_Game", "Gravity_Switch_Game", "Green_Mahjong", "Guess_That_Pokemon", "Guess_The_Ball", 
+            "Guess_The_Celeb", "Guess_The_Correct_Logo", "Guess_The_Murderer", "Guess_The_Number", "Guess_The_Random_Shape", 
+            "Guess_The_Song", "Guess_The_Weapon", "Guess_Who", "Guess_num", "Guess_the_friends_name", "Guitar_Game", 
+            "HTML5_Controller_Tester", "Hand_Cricket", "HangMan", "Hangman_Game", "Harmony_Mixer", "Harry_Potter_Wizard_Quiz", 
+            "Hedgehog_Havoc", "Helicopter_Game", "Hexsweep-Game", "Hextris", "Hide_And_Seek", "Highway_404", 
+            "Highway_Race", "HitOrMiss", "HitYourFriend", "Hit_Target", "Hit_The_Mole", "Hit_the_hamster", 
+            "Hold_The_Cloud", "Hole_And_Mole_Game", "Hover_Board_Effect", "HueHero", "Humming", "Hunt_Your_Card", 
+            "IKnowYou-Mind-Reading-Game", "I_Want_To_Google_The_Game", "Icy_Tower_Game", "Idle_miner", "Illusion", 
+            "Immunity_Collapse", "Infernal_Throne", "Infinite_Cars", "Infinite_Runner_Game", "Insect_Catch_Game", 
+            "Intellect_Quest", "Interactive_Quizzing", "Island_Survival", "Jigsaw_Puzzle", "Johnny_Smiter", "JunoJs", 
+            "Keyboard_Hero", "Kill_The_Bird", "King_Of_Pirates_Quiz", "King_Sword_Runner", "Knife-Thrower", "Knife_hit", 
+            "Know_Your_Country", "LOSSST", "Labyrinth", "Lady_Tiger_Hunter", "Lamb_Lane", "Language_Learner_Adventure", 
+            "LaserDarts", "Letter_Sleuth", "Lighthouse", "Lights_Out", "Line_Of_Fire", "Little_Red_Game", "Lizard_Spock_Game", 
+            "Lonely_Phantom", "Lost_In_The_Maze_3D", "Love Calculator Game", "Love_Calci", "Love_Result_Predictor", 
+            "Ludo_4_Player", "Ludo_Game", "Lunar_Lander", "Madlibs", "Magic_8_ball", "Magic_Square", "Make_Me_Laugh", 
+            "Makeover_Game", "Mamba_Mayhem", "Mancala_Game", "Mansion_Mystery", "Mastemind", "Master_Typing", 
+            "Mastermind_Mania", "Match_Color_Game", "Matching_pair", "MathQuiz", "Math_Game", "Math_Race_Game", 
+            "MathematicsEscapeRoom", "Maths_Sprint_Game", "MaximiseBoxes", "MazeGame", "MazeRunner", "Maze_Explorer", 
+            "Maze_Game", "Maze_Runner", "Maze_of_Cables", "Mechanica", "Meme_Battle_Game", "Memorization_card", 
+            "Memory Flip", "Memory_Card", "Memory_Cards_Game", "Memory_Game", "Memory_Matching_Game", "Menja", 
+            "Menja_block_breaker", "MineSweeper_Easy", "Minecraft", "Minesweeper", "Mini_Golf", "Modulo_Game", "Mole", 
+            "Monster_Maker", "Morse_Code_Generator", "Movie_Guessing_Game", "MrFakeGame", "Multiplayer_Shooting_Game", 
+            "Music_Guess_Game", "Musical_Floor", "Musical_Memory", "NewsJunction", "Ninja_Hattori_Game", "Norman_The_Necromancer", 
+            "Not_morethan5", "Noughts_And_Crosses", "Number Guessing Game", "Number_Catcher_Game", "Number_Guessing_Game", 
+            "Number_Recall_Game", "Number_Sliding_Puzzle_Game", "Number_Sorting_Game", "Observe_the_Cloud", "Othello", 
+            "Otherworldly_Odyssey", "OutRun_Offline_Game", "Pac_Man", "Pac_Man_Game", "Pacific_Air_Battle", "Packabunchas", 
+            "Painting_Game", "Path_Finder_Challenge", "Pathplex", "Pattern_Creation_Game", "PenPointerFight", 
+            "Penalty_Shootout_Game", "Penguins_Can't_Fly", "Physics_Quizz", "Piano", "PianoTiles_Game", "Pictionary_Game", 
+            "Pig_game", "Pikachu_Volleyball", "Pinball", "Ping_Pong", "Ping_Pong_Multiplayer", "Ping_Pong_Singleplayer", 
+            "Pixel_Painter", "Pixel_Smash", "Pixels_From_Space", "Planet_Defense", "Planet_Game", "Plankman", 
+            "Platform_Game", "Platform_game_engine", "Poke_Guess_Blitz", "Pokedex", "Pokemon_Adventure_Game", 
+            "Pokemon_Ball_Finder", "Pokemon_Card_Game", "Pokemon_Stats_Card", "Poker_Dice", "Pong", "Pong_Ball", 
+            "Pop_My_Balloon", "Pop_the_Bubbles", "Pottery-Game", "Prime-No-Finder-Game", "Projectile_Motion_Game", 
+            "Pumpkin_Pursuit", "Puzzel_winner", "Puzzle_Game", "Quest_For_Riches", "QuickFingers", "Quick_Click", 
+            "Quick_Math", "Quiz_With_Timer", "Quiz_it_out", "Quizify", "QuizzApp", "RIP", "Rabbit_Rush", 
+            "Random_Advice_Generator", "Random_Choice_Picker", "Random_Joke_Generator", "Reaction_Time", 
+            "Recognizing_Figures", "Rectangular", "Red_Light_Green_Light", "Reflex_Game", "Remember_the_color", 
+            "Response_Reaction", "Retro_Dungeon_Puzzle", "Reverse Memory", "Reversi", "Riddle_Room", "Riddle_game", 
+            "Risky_Nav", "RoadFighter", "Rock-Paper", "Rock_Paper_Scissors", "Rock_Paper_Scissors_Lizard_Spock", 
+            "Rock_Paper_Scissors_Lizard_Spock_Game", "Rock_Paper_Scissors_Neon", "Rock_paper_scissor", "Rocket_Ride", 
+            "Rocket_Shooter", "Rocket_Showdown", "Roll_Race", "Roll_The_Dice", "Rotating_Elements", "Roulette", 
+            "Rubik's_solver", "Run_Dora_Run", "Samurai_Fighting_Game", "Save_Doraemon", "Save_Princess", "Save_The_Forest", 
+            "SciFi_Alchemy", "Sciarra_Of_Colors", "Screen_Pet_Game", "Scribble", "Sentence_Scramble", "Shadow_PokeGuess", 
+            "Shadow_Runner", "Shape Finder", "Shape_Blocks", "Shell_Game", "Shoot_Duck_Game", "Shoot_The_Balloon", 
+            "Short_Circuit", "Shpere", "Shrek_Vs_Wild", "ShroomKnight", "Simon_Game_Challenge", "Simon_Says", 
+            "Single_Player_Solitaire", "Skeleathon", "Sky_Dodge", "Sky_Jumper", "Sky_Lift_Dash", "Slice_Storm", 
+            "Slide_Master_Puzzle", "Slide_Puzzle", "Sliding_puzzle", "Slime_attack_game", "Smash-Monty-mole-master-main", 
+            "Smashing_Blocks", "Snail_Game", "SnakeBites", "Snake_Feeder_Game", "Snake_Game", "Snake_Gun_Water", 
+            "Snake_Ladder", "Snooze", "Soccer", "Solitaire", "Solitaire_up", "Sonic_The_Hedgehog", "Sorades", 
+            "Soul_Jumper", "Space_Dash", "Space_Defence", "Space_Dominators", "Space_Exploration", "Space_Gun", 
+            "Space_Huggers", "Space_Invaders", "Space_War", "Spaceducts", "Spacepi", "Spaceship_Escort", "Spell_Bee", 
+            "Spelling_Bee", "Spider_Man_Go", "Spin_the_wheel", "Spirograph", "Squared_lines", "Squashing_your_Enemy", 
+            "Squid_Game", "Stack_Game", "Star_Trek_Trivia", "Steam_Punk", "Steampunk_FlappyBird", "StickTheSticker", 
+            "Stick_Hero_Game", "Stolen_Sword", "Stone_paper_scissor", "Subway_Surfers", "Sucker", "Sudoku", 
+            "Sudoku_light_theme", "Super_mario_run", "Super_tetris", "Swap-Card-Game", "Swift", "Synonym-Typing-Game", 
+            "Synonym_Symphony", "Taash Game", "Target_Torrent", "Tech_Memory_Block", "Technical_Mind_Game", "Tenacity", 
+            "Tennis", "Tenzies", "Terror_Seventy", "Tether", "Tetris", "Tetris_Game", "The_Last_Spartan", 
+            "The_Mystery_Adventure_Game", "The_Raising_Fighting_Spirits", "The_labyrinth_of_death", "Thirteen", 
+            "Tic-Tac-Toe Game", "Tic-tac-toe", "Tic_Tac_Toe", "Tic_Tac_Toe_Game", "Tic_Tac_Toe_Neon", "Tic_tac_toe_responsive", 
+            "Tile_Game", "Tilting_Maze", "Timber_Terry", "Tinker_jump_master", "Tiny-Fishing", "Touch-No-Fire-Game", 
+            "Touch_The_Ball", "Tower_Block_Game", "Tower_Blocks", "Tower_Building_Game", "Tower_Defence_Game", 
+            "Tower_Defense", "Tower_Of_Hanoi", "Tower_Stack", "Town_Rise_Game", "Track_Not_Found", "Traffic_Run", 
+            "Trashem", "Treasure Hunt", "Trex_Run", "TriHand_Tactics", "Triangle_Back_To_Home", "Trio_Match", 
+            "Trivia_Card", "Trivia_It", "Truth_And_Dare", "Turn_on_the_light", "Typing_Game", "Typing_Speed_Test2", 
+            "Typing_Speed_Test_Game", "Typing_Test", "UNO", "UNO_game_with_Computer", "Ultimate_Football_Manager", 
+            "Underwater Shoot", "Unlock_The_Lock", "Unruly_Tower", "Unword_it", "Uxu", "Virtual_Pet", "Virtual_Pet_Game", 
+            "Virtual_Piano", "Wault_master", "Whack_a_Mole", "Whack_a_Mole_Mario_Version", "Wheel_of_Fortunes", 
+            "Wheel_of_fortune", "Which_Color", "Wildcard_Bonanza", "WordChain", "WordSprint", "Word_Association_Game", 
+            "Word_Guessing_Game", "Word_Scramble_Game", "Word_Search_Game", "Word_Shuffle_Game", "Word_search_puzzle", 
+            "Wordle", "Wordling", "World_Of_Emojis", "Yahtzee", "Zombie_Shooter", "Zurbo", "automated_rock_paper_scissor", 
+            "catch_the_falling_stars", "clawCrane", "click_circle", "color matcher", "color_matching_application", 
+            "color_switch_challenger", "detona-ralph", "escaperoom", "keySymphony", "linkup", "mario-game", 
+            "mario_matching_game", "my_mine_sweeper", "namefate", "numeral-whiz", "oh_flip", "path_finder", 
+            "pixel_painter", "puzzle-game", "quiz_game", "race_car", "rapid_click_frenzy", "reaction_teaser", 
+            "road_car", "sand_tetris", "simon says", "snake", "snake_water_gun", "space_drifter", "space_explorer", 
+            "test_your_brain", "whack a mole", "witty_word_quest", "wordScramble", "word_association", "word_blitz"
+        ];
+
+        const gamesGrid = document.getElementById('gamesGrid');
+        const searchInput = document.getElementById('searchInput');
+        const noResults = document.getElementById('noResults');
+
+        // Clean folder name for display purposes (replace underscores/hyphens with spaces)
+        function formatGameName(folder) {
+            return folder
+                .replace(/([a-z])([A-Z])/g, '$1 $2')
+                .replace(/[_]/g, ' ')
+                .replace(/\b\w/g, l => l.toUpperCase());
+        }
+
+        function renderGames(filter = '') {
+            gamesGrid.innerHTML = '';
+            const filtered = gameFolders.filter(folder => 
+                folder.toLowerCase().includes(filter.toLowerCase()) ||
+                formatGameName(folder).toLowerCase().includes(filter.toLowerCase())
+            );
+
+            if (filtered.length === 0) {
+                noResults.style.display = 'block';
+                return;
+            } else {
+                noResults.style.display = 'none';
+            }
+
+            filtered.forEach(folder => {
+                const displayName = formatGameName(folder);
+                const card = document.createElement('a');
+                card.className = 'game-card';
+                // Handles nested paths or direct folders correctly assuming index.html exists inside each folder
+                card.href = `./${encodeURIComponent(folder)}/index.html`;
+                
+                card.innerHTML = `
+                    <div class="game-title">🎯 ${displayName}</div>
+                    <div class="game-footer">
+                        <span>Play game</span>
+                        <span class="play-btn">Play &rarr;</span>
+                    </div>
+                `;
+                gamesGrid.appendChild(card);
+            });
+        }
+
+        // Initial render
+        renderGames();
+
+        // Search event listener
+        searchInput.addEventListener('input', (e) => {
+            renderGames(e.target.value.trim());
+        });
+    </script>
+<script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js'></script>
+<script>
+  kofiWidgetOverlay.draw('deepakwebservices', {
+    'type': 'floating-chat',
+    'floating-chat.donateButton.text': 'Support me',
+    'floating-chat.donateButton.background-color': '#00b9fe',
+    'floating-chat.donateButton.text-color': '#fff'
+  });
+</script>
+
+
+<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 20px;">
+    <p style="margin: 0 0 8px 0;">Total Visitors</p>
+    <img src="https://count.getloli.com/get/@flight-newz.web.app?theme=asoul" alt="deepak-news counter" />
+</div>
+<script>
+  document.addEventListener('contextmenu', function(event) {
+    event.preventDefault();
+  });
+</script>
+</body>
+</html>
